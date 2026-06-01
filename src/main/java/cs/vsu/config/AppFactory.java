@@ -12,6 +12,7 @@ import cs.vsu.service.ProductService;
 import cs.vsu.service.impl.DepartmentServiceImpl;
 import cs.vsu.service.impl.ProductServiceImpl;
 import cs.vsu.util.DbConfig;
+import cs.vsu.util.WebServer;
 
 public class AppFactory {
 
@@ -54,7 +55,13 @@ public class AppFactory {
     private Runnable createRunner(DepartmentService deptService, ProductService prodService) {
         return switch (appMode) {
             case CONSOLE -> new ConsoleRunner(deptService, prodService);
-            case API -> throw new UnsupportedOperationException("API mode not implemented yet");
+            case API -> () -> {
+                try {
+                    WebServer.start(deptService, prodService, 8080);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            };
         };
     }
 
